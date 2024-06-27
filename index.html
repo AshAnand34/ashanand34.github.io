@@ -1,1 +1,22 @@
-"Hello World" 
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <script src="https://d3js.org/d3.v7.js"></script>
+        <link rel="stylesheet" href="style.css">
+        <script src="index.js"></script>
+        <title>School Shooting Narrative Visualization</title>
+    </head>
+    <body onload="getCurrentScene()">
+        <div class="mainContent" id="scene-home"></div>
+        <div>
+            <button id="left-arrow" onclick="moveToPreviousScene()">&larr;</button>
+            <button id="right-arrow" onclick="moveToNextScene()">&rarr;</button>
+        </div>
+        <footer>
+            <p>Author: Aashish Anand</p>
+            <a href="https://www.chds.us/sssc/data-map/">Data Source</a>
+            <a href="https://www.github.com/AshAnand34/ashanand34.github.io">GitHub Repo</a>
+        </footer>
+    </body>
+</html>

@@ -1,3 +1,148 @@
+html {
+    height: 100%;
+}
+
 body {
-    background: #000;
+    position: relative;
+    background-repeat: no-repeat;
+    background-image: linear-gradient(black 65%, rgb(72, 72, 72));
+    text-align: center;
+    color: #cfcfcf;
+    overflow: hidden;
+}
+
+.mainContent {
+    margin: 15% auto;
+    max-width: 1000px;
+    position: absolute;
+    left: 1%;
+    right: 1%;
+}
+
+#scene-home {
+    animation: content-appear 2s cubic-bezier(0.39, 0.575, 0.565, 1) forwards;
+}
+
+@keyframes content-appear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes content-appear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+
+@-webkit-keyframes content-appear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+
+h1 {
+    font-size: 4em;
+}
+
+.mainContent > p {
+    font-size: 2em;
+}
+
+p > b {
+    color: #793838;
+}
+
+a {
+    color: rgba(255, 255, 255, 0.4)
+}
+
+a:visited {
+    color: #ab4b4b
+}
+
+span {
+    position: absolute;
+}
+
+button {
+    background-color: transparent;
+    color: #cfcfcf;
+    border-radius: 30%;
+    border: 2px solid;
+    font-size: 3em;
+    margin: 20% auto;
+    cursor: pointer;
+    visibility: visible;
+}
+
+button:disabled {
+    visibility: hidden;
+}
+
+button:hover {
+    color: #793838;
+    border: 2px solid;
+}
+
+#left-arrow {
+    float: left;
+}
+
+#right-arrow {
+    float: right;
+}
+
+button:disabled {
+    visibility: hidden;
+}
+
+footer {
+    position: fixed;
+    height: 100px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    margin-bottom: 0px;
+    font-size: large;
+    animation: footerMove 2s linear forwards;
+}
+
+@keyframes footerMove {
+    from {
+        transform: translateY(100px);
+    }
+    to {
+        transform: translateY(0px);
+    }
+}
+
+@-moz-keyframes footerMove {
+    from {
+        transform: translateY(100px);
+    }
+    to {
+        transform: translateY(0px);
+    }
+}
+
+
+@-webkit-keyframes footerMove {
+    from {
+        transform: translateY(100px);
+    }
+    to {
+        transform: translateY(0px);
+    }
 }
