@@ -5,9 +5,11 @@
         <script src="https://d3js.org/d3.v7.js"></script>
         <link rel="stylesheet" href="style.css">
         <script src="index.js"></script>
+        <script src="https://unpkg.com/topojson-client@3"></script>
+        <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
         <title>School Shooting Narrative Visualization</title>
     </head>
-    <body onload="getCurrentScene()">
+    <body onload="init()">
         <div class="mainContent" id="scene-home"></div>
         <div>
             <button id="left-arrow" onclick="moveToPreviousScene()">&larr;</button>
