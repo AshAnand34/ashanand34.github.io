@@ -24,8 +24,17 @@ body {
     margin: 15% auto;
 }
 
+#scene-line-chart {
+    margin: 5% auto;
+}
+
 #scene-map {
-    margin: 7% auto;
+    margin: 3% auto;
+}
+
+caption {
+    text-align: center;
+    width: 100%;
 }
 
 @keyframes content-appear {

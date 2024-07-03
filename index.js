@@ -2,15 +2,17 @@ var scenes = ["scene-home", "scene-line-chart", "scene-map", "scene-random", "sc
 
 var sceneIndex = 0;
 
-var us, schoolShootingData;
+var sliderYear = 1970;
+
+var us, schoolShootingData, stateMapping;
 
 async function init() {
     us = await d3.json("https://d3js.org/us-10m.v1.json");
-    
     schoolShootingData = await d3.csv("./school_shootings_1970-2022.csv");
     schoolShootingData.forEach(function (d) {
         d.Date = d3.timeParse("%Y-%m-%d")(d.Date);
     });
+    stateMapping = await d3.csv("./states.csv");
     getCurrentScene();
 }
 
@@ -65,7 +67,15 @@ function getCurrentScene(prevIndex) {
             createLineChart();
             break;
         case 2:
-            d3.select(".mainContent").attr("id", scenes[sceneIndex])
+            d3.select(".mainContent")
+            .attr("id", scenes[sceneIndex])
+            .append("p")
+            .text(`From the map below, California, Texas, Florida and Illinois are 
+                some of states that consistently have the greatest number of school shootings 
+                although it depends on the crime rate at that specific year. 
+                Toggle the slider below the map to see how the number of school shootings 
+                for each state changed over the years.`);
+            d3.select("#" + scenes[sceneIndex])
             .append("svg")
             .attr("width", 960).attr("height", 600)
             createMapChart();
@@ -88,31 +98,78 @@ function getCurrentScene(prevIndex) {
 async function createMapChart() {
     var states = topojson.feature(us, us.objects.states).features;
     var borders = topojson.mesh(us, us.objects.states, (a, b) => a !== b);
-    var stateValue = schoolShootingData.map((d) => d.State).sort()
-    var dataMap = d3.rollup(schoolShootingData, (v) => v.length, (d) => d.State);
-    var colorScheme = d3.scaleThreshold().domain([10, 50, 100, 150, 200, 150, 300]).range(d3.schemeReds[8]);
-
-    console.log(stateValue, dataMap);
-
+    var dataMap = d3.rollup(schoolShootingData, (v) => v.length, (d) => d.Date.getFullYear(), (d) => d.State);
+    var colorScheme = d3.scaleLinear().domain([0, d3.greatest(dataMap.get(sliderYear), d => d[1])[1]]).range(["white", "maroon"]);
     var path = d3.geoPath();
+    var abbrevs = d3.sort(stateMapping, (d) => d.State).map(d => d.Abbreviation);
+    var ansiDict = states.map(d => parseInt(d.id)).sort(function(a, b) { return a - b;})
+        .map(function (d, i) { return [d, abbrevs[i]]; });
+
+    var tooltip = d3.select("#" + scenes[sceneIndex])
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "map-tooltip")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px");
 
     d3.select("svg").selectAll("path")
     .data(states)
     .enter().append("path")
-    .attr("fill", function(d) { console.log(d.id); return colorScheme(dataMap.get(stateValue[d.id]) || 0); })
-    .attr("d", path);
+    .attr("class", "states")
+    .attr("fill", function(d) {
+        var stateANSI = ansiDict.filter(s => s[0] === parseInt(d.id))[0];
+        return colorScheme(dataMap.get(sliderYear).get(stateANSI[1]) || 0); 
+    })
+    .attr("d", path)
+    .on("mouseover", function(event, d) {
+        tooltip.style("opacity", 1);
+    })
+    .on("mousemove", function(event, d) {
+        var stateANSI = ansiDict.filter(s => s[0] === parseInt(d.id))[0];
+        tooltip
+        .html(stateANSI[1] + " had " + (dataMap.get(sliderYear).get(stateANSI[1]) || 0) + " school shootings.");
+    }).on("mouseleave", function(event, d) {
+        tooltip.style("opacity", 0);
+    });
     
     d3.select("svg").append("path")
     .datum(borders)
     .attr("d", path)
     .attr("fill", "none")
     .attr("stroke", "darkgray")
-    .attr("stroke-linejoin", "round");
+    .attr("stroke-width", 1.5);
+    
+    d3.select("#" + scenes[sceneIndex])
+    .append("caption")
+    .text("US Choropleth Map of School Shootings in " + sliderYear);
+
+    d3.select("#" + scenes[sceneIndex])
+    .append("input")
+    .attr("type", "range")
+    .attr("min", 1970)
+    .attr("max", 2022)
+    .attr("step", 1)
+    .attr("value", sliderYear)
+    .on("input", function (e) {
+        sliderYear = parseInt(e.target.value);
+        console.log(d3.greatest(dataMap.get(sliderYear), d => d[1]));
+        colorScheme = d3.scaleLinear().domain([0, d3.greatest(dataMap.get(sliderYear), d => d[1])[1]]).range(["white", "maroon"]);
+        d3.selectAll("path.states")
+        .transition().duration(150)
+        .attr("fill", function(d) {
+            var stateANSI = ansiDict.filter(s => s[0] === parseInt(d.id))[0];
+            return colorScheme(dataMap.get(sliderYear).get(stateANSI[1]) || 0); 
+        });
+        d3.select("caption")
+        .text("US Choropleth Map of School Shootings in " + sliderYear);
+    })
 }
 
 async function createLineChart() {
     var lineData = d3.flatRollup(schoolShootingData, (v) => v.length, (d) => d.Date.getFullYear());
-    var xScale = d3.scaleLinear().domain(d3.extent(lineData, function(d) { return d[0]; })).range([0, 700]);
+    var dateExtent = d3.extent(lineData, function(d) { return d[0]; });
+    var xScale = d3.scaleLinear().domain(dateExtent).range([0, 700]);
     var yScale = d3.scaleLinear().domain([0, d3.max(lineData, function(d) { return d[1]; })]).range([500, 0]);
 
     var annotationData = lineData.filter(function(d) { return d[0] === 2021 })[0];
