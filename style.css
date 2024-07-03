@@ -12,7 +12,7 @@ body {
 }
 
 .mainContent {
-    margin: 8% auto;
+    margin: 15% auto;
     max-width: 1000px;
     position: absolute;
     left: 1%;
@@ -25,11 +25,11 @@ body {
 }
 
 #scene-line-chart {
-    margin: 5% auto;
+    margin: 10% auto;
 }
 
 #scene-map {
-    margin: 3% auto;
+    margin: 10% auto;
 }
 
 caption {
@@ -44,6 +44,11 @@ caption {
     100% {
         opacity: 1;
     }
+}
+
+rect {
+    fill: maroon;
+    stroke: #ab4b4b;
 }
 
 @-moz-keyframes content-appear {
@@ -127,18 +132,22 @@ button:disabled {
 
 footer {
     position: fixed;
-    height: 100px;
+    height: 50px;
     bottom: 0px;
     left: 0px;
     right: 0px;
     margin-bottom: 0px;
-    font-size: large;
+    font-size: 15px;
     animation: footerMove 2s linear forwards;
+}
+
+footer > * {
+    display: inline-block;
 }
 
 @keyframes footerMove {
     from {
-        transform: translateY(100px);
+        transform: translateY(50px);
     }
     to {
         transform: translateY(0px);
@@ -147,7 +156,7 @@ footer {
 
 @-moz-keyframes footerMove {
     from {
-        transform: translateY(100px);
+        transform: translateY(50px);
     }
     to {
         transform: translateY(0px);
@@ -157,7 +166,7 @@ footer {
 
 @-webkit-keyframes footerMove {
     from {
-        transform: translateY(100px);
+        transform: translateY(50px);
     }
     to {
         transform: translateY(0px);
