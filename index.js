@@ -1,12 +1,16 @@
-var scenes = ["scene-home", "scene-line-chart", "scene-map", "scene-random", "scene-thank-you"];
+var scenes = ["scene-home", "scene-line-chart", "scene-map", "scene-bar-chart", "scene-conclusion", "scene-thank-you"];
 
-var sceneIndex = 3;
+var sceneIndex = 0;
 
 var sliderYear = 1970;
 
 var schoolLevel = "Elementary";
 
-var us, schoolShootingData, stateMapping;
+var quarter = "overall"
+
+var quarterColors = ["maroon", "#F8B8D0", "#00B4C5", "#C44601", "skyblue"]
+
+var us, schoolShootingData, stateMapping, allQuarters;
 
 async function init() {
     us = await d3.json("https://d3js.org/us-10m.v1.json");
@@ -15,6 +19,8 @@ async function init() {
         d.Date = d3.timeParse("%Y-%m-%d")(d.Date);
     });
     stateMapping = await d3.csv("./states.csv");
+    allQuarters = [...new Set(schoolShootingData.map(d => d.Quarter))].filter(s => s !== "" && s !== "null");
+    allQuarters.unshift("overall");
     getCurrentScene();
 }
 
@@ -24,7 +30,7 @@ function moveToNextScene() {
         sceneIndex++;
         getCurrentScene(sceneIndex - 1);
         d3.select("#" + scenes[sceneIndex])
-        .style("transform", "translateX(1200px)")
+        .style("transform", "translateX(1600px)")
         .transition().duration(1000)
         .style("transform", "translateX(0px)");
     }
@@ -36,7 +42,7 @@ function moveToPreviousScene() {
         sceneIndex--;
         getCurrentScene(sceneIndex + 1);
         d3.select("#" + scenes[sceneIndex])
-        .style("transform", "translateX(-1200px)")
+        .style("transform", "translateX(-1600px)")
         .transition().duration(1000)
         .style("transform", "translateX(0px)");
         if (sceneIndex === 0) {
@@ -59,47 +65,79 @@ function getCurrentScene(prevIndex) {
         case 1:
             d3.select(".mainContent")
             .attr("id", scenes[sceneIndex])
+            .append("h2").text("School Shootings Time Trend from 1970-2022")
+            d3.select("#" + scenes[sceneIndex]).append("br")
+            d3.select("#" + scenes[sceneIndex])
             .append("p")
-            .text(`The number of school shootings fluctuated between 10 and 63 from 1970 to 2010.
-                However, since then, it has been rapidly increasing with the highest being 251 in the year 2021.`);
+            .text(`School shootings are one of the most unpredictable acts of gun violence, especially in the United States. These kinds of incidents sparked controversy on policies ralted to gun control and gun violence. The number of school shootings fluctuated between 10 and 63 from 1970 to 2010. The shootings rapidly increased to 118 in 2018, which was the year of the Parkland High School Shooting in Florida. Out of the 235 mass shootings that occured in 2018 in the United States, shockingly 23 of them took place at schools.
+                There has been some stability during the COVID pandemic in 2020. However, since then, it has been rapidly increasing with the highest being 251 in the year 2021.`);
+            d3.select("#" + scenes[sceneIndex]).append("p")
+            .attr("class", "allQuarters")
+            .text(`Here is the line chart that
+                shows the time trend of school shootings for `)    
+            d3.select(".allQuarters").append("select")
+            .attr("id", "allQuarters").attr("name", "allQuarters")
+            .selectAll("option").data(allQuarters)
+            .enter().append("option")
+            .attr("value", function (d) { return d; })
+            .text(function(d) { return d; });
             d3.select("#" + scenes[sceneIndex]).append("svg")
-            .attr("width", 800).attr("height", 400)
+            .attr("width", 800).attr("height", 400);
             createLineChart();
+            d3.select("#" + scenes[sceneIndex]).append("p").text("Click on the right arrow to see the school shootings per state.");
             break;
         case 2:
             d3.select(".mainContent")
             .attr("id", scenes[sceneIndex])
+            .append("h2").text("US Map of School Shootings from 1970-2022")
+            d3.select("#" + scenes[sceneIndex]).append("br")
+            d3.select("#" + scenes[sceneIndex])
             .append("p")
-            .text(`From the map below, California, Texas, Florida and Illinois are 
+            .text(`From coast to coast, we are recuperating from recent school shootings, leaving catastrophic impacts on all Americans.
+                From the map below, California, Texas, Florida and Illinois are 
                 some of states that consistently have the greatest number of school shootings 
-                although it depends on the crime rate at that specific year. 
+                possibly due to high crime rates. 
                 Toggle the slider below the map to see how the number of school shootings 
                 for each state changed over the years.`);
             d3.select("#" + scenes[sceneIndex])
             .append("svg")
-            .attr("width", 760).attr("height", 350);
+            .attr("width", 800).attr("height", 400);
             createMapChart();
+            d3.select("#" + scenes[sceneIndex]).append("p").text("Click on the right arrow to see the school shootings per location per school level.");
             break;
         case 3:
             var schoolLevels = [...new Set(schoolShootingData.map(d => d.School_Level))].filter(s => s !== "" && s !== "null" && s !== "Unknown");
-            d3.select(".mainContent").attr("id", scenes[sceneIndex])
-            .append("p").text("Random String ");
-            d3.select("p").append("select")
+            d3.select(".mainContent")
+            .attr("id", scenes[sceneIndex])
+            .append("h2").text("School Shootings By School Level and Location")
+            d3.select("#" + scenes[sceneIndex]).append("br")
+            d3.select("#" + scenes[sceneIndex])
+            .append("p").text("This bar chart displays the number of school shootings per location, grouped by the school level. As it turns out, for most of the school levels, the shootings occurred outside of the school property. Junior High and Other school levels had shootings from within the building.");
+            d3.select("#" + scenes[sceneIndex])
+            .append("p").attr("class", "dropdown-schoollevel").text("Here is the bar chart for the school shootings in the ")
+            d3.select(".dropdown-schoollevel").append("select")
             .attr("id", "schoolLevels").attr("name", "schoolLevels")
             .selectAll("option").data(schoolLevels)
             .enter().append("option")
             .attr("value", function (d) { return d; })
             .text(function(d) { return d; });
+            var schoolLevelHTML = d3.select(".dropdown-schoollevel").html()
+            d3.select(".dropdown-schoollevel").html(schoolLevelHTML + " school level." );
             d3.select("#" + scenes[sceneIndex])
             .append("svg")
-            .attr("width", 760).attr("height", 400);
+            .attr("width", 800).attr("height", 400);
             createBarChart();
+            d3.select("#" + scenes[sceneIndex]).append("p").text("Click on the right arrow.");
             break;
         case 4:
+            d3.select(".mainContent").attr("id", scenes[sceneIndex])
+            .append("strong").text("We need to ask ourselves, how many more school shootings do we need before we start talking about this as a social problem, and not merely a random collection of isolated incidents? It has been proven that school shootings can happen anywhere without warning, and can happen to students of all ages, ethnicity, and religions, as well as teachers and administrators.")
+            break;
+        case 5:
             d3.select("#right-arrow").attr("disabled", true);
             d3.select(".mainContent").attr("id", scenes[sceneIndex])
-            .append("h1").text("Thank you for listening");
-            d3.select("#" + scenes[sceneIndex]).append("p").text("Hope you enjoyed this narrative visualiation. Stay safe.")
+            .append("h1").text("Thank you for exploring this narrative visualiation!");
+            d3.select("#" + scenes[sceneIndex]).append("p").text("Hope you enjoyed it. Stay safe.")
             break;
         default:
             break;
@@ -111,7 +149,7 @@ function createMapChart() {
     var borders = topojson.mesh(us, us.objects.states, (a, b) => a !== b);
     var dataMap = d3.rollup(schoolShootingData, (v) => v.length, (d) => d.Date.getFullYear(), (d) => d.State);
     var colorScheme = d3.scaleLinear().domain([0, d3.greatest(dataMap.get(sliderYear), d => d[1])[1]]).range(["white", "maroon"]);
-    var projection = d3.geoIdentity().fitSize([760-50,350-50], states)
+    var projection = d3.geoIdentity().fitSize([750,350], states)
     var path = d3.geoPath().projection(projection);
     var abbrevs = d3.sort(stateMapping, (d) => d.State).map(d => d.Abbreviation);
     var ansiDict = states.features.map(d => parseInt(d.id))
@@ -184,9 +222,11 @@ function createMapChart() {
 
 function createLineChart() {
     var lineData = d3.flatRollup(schoolShootingData, (v) => v.length, (d) => d.Date.getFullYear());
+    if (quarter !== "overall")
+        lineData = d3.flatRollup(schoolShootingData, (v) => v.length, (d) => d.Date.getFullYear(), (d) => d.Quarter).filter((d) => d[1] === quarter);
     var dateExtent = d3.extent(lineData, function(d) { return d[0]; });
     var xScale = d3.scaleLinear().domain(dateExtent).range([0, 700]);
-    var yScale = d3.scaleLinear().domain([0, d3.max(lineData, function(d) { return d[1]; })]).range([300, 0]);
+    var yScale = d3.scaleLinear().domain([0, d3.max(lineData, function(d) { return quarter === "overall" ? d[1] : d[2]; })]).range([300, 0]);
 
     var annotationData = lineData.filter(function(d) { return d[0] === 2021 })[0];
 
@@ -199,7 +239,7 @@ function createLineChart() {
             padding: 15
         },
         x: xScale(annotationData[0]),
-        y: yScale(annotationData[1]),
+        y: yScale(quarter !== "overall" ? annotationData[2] : annotationData[1]),
         type: d3.annotationLabel,
         color: ["white"],
         dy: 0,
@@ -210,8 +250,6 @@ function createLineChart() {
             endScale: 5
         }
     }];
-
-    const makeLineAnnotations = d3.annotation().annotations(lineAnnotations);
     
     d3.select("svg")
     .append("text")
@@ -236,32 +274,92 @@ function createLineChart() {
     d3.select("svg")
     .append("g")
     .attr("transform", "translate(50,50)")
+    .attr("class", "line-yAxis")
     .call(d3.axisLeft(yScale));
 
     d3.select("svg")
     .append("g")
     .attr("transform", "translate(50,350)")
+    .attr("class", "line-xAxis")
     .call(d3.axisBottom(xScale).tickFormat(function (d) { return d.toString().replace(",", ""); }));
 
     d3.select("svg")
     .append("g")
     .attr("transform", "translate(50,50)")
-    .append("path")
     .datum(lineData)
+    .append("path")
+    .attr("class", "line-chart")
     .attr("fill", "none")
-    .attr("stroke", "maroon")
+    .attr("stroke", quarterColors[allQuarters.indexOf(quarter)])
     .attr("stroke-width", 1)
     .attr("d", d3.line()
         .x(function(d) { return xScale(d[0]); })
-        .y(function(d) { return yScale(d[1]); })
+        .y(function(d) { return yScale(quarter !== "overall" ? d[2] : d[1]); })
     );
 
     d3.select("svg").append("g")
         .attr("transform", "translate(50,50)")
-        .attr("class", "line-annotation-group").call(makeLineAnnotations);
+        .attr("class", "line-annotation-group").call(d3.annotation().annotations(lineAnnotations));
 
     d3.select(".line-annotation-group").selectAll(".connector").attr("stroke", "white")
-    d3.select(".line-annotation-group").selectAll(".connector-end").attr("stroke", "maroon").attr("fill", "maroon")
+    d3.select(".line-annotation-group").selectAll(".connector-end").attr("stroke", quarterColors[allQuarters.indexOf(quarter)]).attr("fill", quarterColors[allQuarters.indexOf(quarter)])
+
+    d3.select("#allQuarters")
+    .on("change", function(e) {
+        quarter = e.target.value;
+        if (quarter !== "overall")
+            lineData = d3.flatRollup(schoolShootingData, (v) => v.length, (d) => d.Date.getFullYear(), (d) => d.Quarter)
+                            .filter((d) => d[1] === quarter)
+        else
+            lineData = d3.flatRollup(schoolShootingData, (v) => v.length, (d) => d.Date.getFullYear());
+        yScale.domain([0, d3.max(lineData, function(d) { return quarter === "overall" ? d[1] : d[2]; })]);
+        d3.select(".line-yAxis").transition().duration(1000).call(d3.axisLeft(yScale))
+
+        var line = d3.select(".line-chart").datum(lineData, function (d) { return d[0]; });
+
+        line.enter()
+        .append("path")
+        .select(".line-chart")
+        .merge(line)
+        .transition()
+        .duration(1000)
+        .attr("fill", "none")
+        .attr("stroke", quarterColors[allQuarters.indexOf(quarter)])
+        .attr("stroke-width", 1)
+        .attr("d", d3.line()
+            .x(function(d) { return xScale(d[0]); })
+            .y(function(d) { return yScale(quarter !== "overall" ? d[2] : d[1]); })
+        );
+
+        annotationData = lineData.filter(function(d) { return d[0] === 2021 })[0];
+
+        lineAnnotations = [{
+            note: {
+                label: "Due to the end of the COVID-19 pandemic, the schools resumed in-person learning which lead to a dramatic increase in school shootings.",
+                title: "2021: Biggest School Shooting Peak",
+                align: "middle",
+                wrap: 200,
+                padding: 15
+            },
+            x: xScale(annotationData[0]),
+            y: yScale(quarter !== "overall" ? annotationData[2] : annotationData[1]),
+            type: d3.annotationLabel,
+            color: ["white"],
+            dy: 0,
+            dx: -162,
+            connector: {
+                end: "dot",
+                type: "line",
+                endScale: 5
+            }
+        }];
+
+        var makeAnnotations = d3.annotation().annotations(lineAnnotations);
+        d3.select(".line-annotation-group").call(makeAnnotations);
+        d3.select(".line-annotation-group").selectAll(".connector-end")
+        .attr("stroke", quarterColors[allQuarters.indexOf(quarter)])
+        .attr("fill", quarterColors[allQuarters.indexOf(quarter)]);
+    });
 }
 
 function createBarChart() {
@@ -295,7 +393,7 @@ function createBarChart() {
         .attr("width", xScale.bandwidth)
         .attr("height", function(d, i) { return 300-yScale(d[1]); });
 
-    d3.select("select")
+    d3.select("#schoolLevels")
     .on("change", function(e) {
         schoolLevel = e.target.value;
         xScale.domain([...locationRollup.get(schoolLevel).keys()].sort());

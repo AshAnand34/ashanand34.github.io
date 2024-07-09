@@ -1,14 +1,10 @@
-html {
-    height: 100%;
-}
-
 body {
     position: relative;
     background-repeat: no-repeat;
     background-image: linear-gradient(black 65%, rgb(72, 72, 72));
+    background-attachment: fixed;
     text-align: center;
     color: #cfcfcf;
-    overflow: hidden;
 }
 
 .mainContent {
@@ -18,23 +14,29 @@ body {
     left: 1%;
     right: 1%;
     animation: content-appear 2s cubic-bezier(0.39, 0.575, 0.565, 1) forwards;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.mainContent::-webkit-scrollbar {
+    display: none;
 }
 
 #scene-home, #scene-thank-you {
     margin: 15% auto;
 }
 
-#scene-line-chart {
-    margin: 10% auto;
-}
-
-#scene-map {
-    margin: 10% auto;
+#scene-line-chart, #scene-map, #scene-bar-chart {
+    margin: 3% auto;
 }
 
 caption {
     text-align: center;
     width: 100%;
+}
+
+strong {
+    font-size: xx-large;
 }
 
 @keyframes content-appear {
@@ -49,6 +51,21 @@ caption {
 rect {
     fill: maroon;
     stroke: #ab4b4b;
+}
+
+select {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 1em;
+    color: #cfcfcf;
+    background: transparent !important;
+}
+
+select {
+    border: none;
+}
+
+select > option {
+    border: 0.1px solid #e4e4e4;
 }
 
 @-moz-keyframes content-appear {
@@ -70,8 +87,16 @@ rect {
     }
 }
 
+.map-tooltip {
+    width: auto;
+}
+
 h1 {
-    font-size: 4em;
+    font-size: 3em;
+}
+
+h2 {
+    font-size: 2.5em;
 }
 
 #scene-home > p {
@@ -79,7 +104,7 @@ h1 {
 }
 
 :not(footer) > p {
-    font-size: 1.3em;
+    font-size: 1.1em;
 }
 
 p > b {
@@ -132,22 +157,19 @@ button:disabled {
 
 footer {
     position: fixed;
-    height: 50px;
+    height: 100px;
     bottom: 0px;
     left: 0px;
     right: 0px;
     margin-bottom: 0px;
     font-size: 15px;
     animation: footerMove 2s linear forwards;
-}
-
-footer > * {
-    display: inline-block;
+    text-align: left;
 }
 
 @keyframes footerMove {
     from {
-        transform: translateY(50px);
+        transform: translateY(100px);
     }
     to {
         transform: translateY(0px);
@@ -156,7 +178,7 @@ footer > * {
 
 @-moz-keyframes footerMove {
     from {
-        transform: translateY(50px);
+        transform: translateY(100px);
     }
     to {
         transform: translateY(0px);
@@ -166,7 +188,7 @@ footer > * {
 
 @-webkit-keyframes footerMove {
     from {
-        transform: translateY(50px);
+        transform: translateY(100px);
     }
     to {
         transform: translateY(0px);
