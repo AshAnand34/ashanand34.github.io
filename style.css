@@ -88,7 +88,9 @@ select > option {
 }
 
 .map-tooltip {
-    width: auto;
+    position: absolute;
+    color: rgb(67, 224, 255);
+    background-color: rgb(155, 26, 155);
 }
 
 h1 {
