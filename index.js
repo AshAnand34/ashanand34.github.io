@@ -29,15 +29,18 @@ function moveToNextScene() {
     if (sceneIndex < scenes.length - 1) {
         sceneIndex++;
         getCurrentScene(sceneIndex - 1);
-        d3.select("#" + scenes[sceneIndex])
-        .style("transform", "translateX(1600px)")
-        .transition().duration(1000)
-        .style("transform", "translateX(0px)");
     }
+    else {
+        sceneIndex = 0;
+        getCurrentScene(scenes.length - 1);
+    }
+    d3.select("#" + scenes[sceneIndex])
+    .style("transform", "translateX(1600px)")
+    .transition().duration(1000)
+    .style("transform", "translateX(0px)");
 }
 
 function moveToPreviousScene() {
-    d3.select("#right-arrow").attr("disabled", null);
     if (sceneIndex > 0) {
         sceneIndex--;
         getCurrentScene(sceneIndex + 1);
@@ -55,6 +58,7 @@ function getCurrentScene(prevIndex) {
     d3.select("#" + scenes[prevIndex]).html("")
     switch (sceneIndex) {
         case 0:
+            d3.select("#right-arrow").html("&rarr;");
             d3.select("#left-arrow").attr("disabled", true);
             d3.select(".mainContent").attr("id", scenes[sceneIndex]).append("h1")
             .text("School Shootings Data Visualization");
@@ -131,7 +135,7 @@ function getCurrentScene(prevIndex) {
             .append("strong").text("We need to ask ourselves, how many more school shootings do we need before we start talking about this as a social problem, and not merely a random collection of isolated incidents? It has been proven that school shootings can happen anywhere without warning, and can happen to students of all ages, ethnicity, and religions, as well as teachers and administrators.")
             break;
         case 5:
-            d3.select("#right-arrow").attr("disabled", true);
+            d3.select("#right-arrow").html("&olarr;");
             d3.select(".mainContent").attr("id", scenes[sceneIndex])
             .append("h1").text("Thank you for exploring this narrative visualiation!");
             d3.select("#" + scenes[sceneIndex]).append("p").text("Hope you enjoyed it. Stay safe.")

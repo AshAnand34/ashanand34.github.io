@@ -56,16 +56,16 @@ rect {
 select {
     font-family: "Times New Roman", Times, serif;
     font-size: 1em;
-    color: #cfcfcf;
     background: transparent !important;
+    border: 0.3px solid #cfcfcf;
 }
 
 select {
-    border: none;
+    color: #cfcfcf;
 }
 
 select > option {
-    border: 0.1px solid #e4e4e4;
+    color: black;
 }
 
 @-moz-keyframes content-appear {
@@ -118,7 +118,7 @@ a {
 }
 
 a:visited {
-    color: #ab4b4b
+    color: #d44343
 }
 
 span {
