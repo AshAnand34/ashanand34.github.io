@@ -4,7 +4,7 @@ var sceneIndex = 0;
 
 var sliderYear = 1970;
 
-var schoolLevel = "Elementary";
+var schoolLevel = "All";
 
 var quarter = "overall"
 
@@ -112,6 +112,7 @@ function getCurrentScene(prevIndex) {
         case 3:
             // School Level and Location Bar Chart Scene
             var schoolLevels = [...new Set(schoolShootingData.map(d => d.School_Level))].filter(s => s !== "" && s !== "null" && s !== "Unknown");
+            schoolLevels.unshift("All");
             d3.select(".mainContent")
             .attr("id", scenes[sceneIndex])
             .append("h2").text("School Shootings By School Level and Location")
@@ -119,7 +120,7 @@ function getCurrentScene(prevIndex) {
             d3.select("#" + scenes[sceneIndex])
             .append("p").text("This bar chart displays the number of school shootings per location, grouped by the school level. As it turns out, for most of the school levels, the shootings occurred outside of the school property. Junior High and Other school levels had shootings from within the building.");
             d3.select("#" + scenes[sceneIndex])
-            .append("p").attr("class", "dropdown-schoollevel").text("Here is the bar chart for the school shootings in the ")
+            .append("p").attr("class", "dropdown-schoollevel").text("Here is the bar chart for the school shootings in ")
             d3.select(".dropdown-schoollevel").append("select")
             .attr("id", "schoolLevels").attr("name", "schoolLevels")
             .selectAll("option").data(schoolLevels)
@@ -127,7 +128,7 @@ function getCurrentScene(prevIndex) {
             .attr("value", function (d) { return d; })
             .text(function(d) { return d; });
             var schoolLevelHTML = d3.select(".dropdown-schoollevel").html()
-            d3.select(".dropdown-schoollevel").html(schoolLevelHTML + " school level." );
+            d3.select(".dropdown-schoollevel").html(schoolLevelHTML + " school levels." );
             d3.select("#" + scenes[sceneIndex])
             .append("svg")
             .attr("width", 800).attr("height", 400);
@@ -375,7 +376,7 @@ function createLineChart() {
         .attr("transform", function(d, i) { return `translate(100,${30*i})`});
     
     lineLegend.append("rect")
-        .attr("fill", function(d, i) { console.log(quarterColors[i]); return quarterColors[i]; })
+        .attr("fill", function(d, i) { return quarterColors[i]; })
         .attr("width", 10).attr("height", 10)
     
     lineLegend.append("text").text(function(d) { return d; })
@@ -458,12 +459,18 @@ function createBarChart() {
         && s.Location_Type !== "null" 
         && s.Location_Type !== "Unknown" 
         && s.Location_Type !== "ND"), 
-        v => v.length, d => d.School_Level, d => d.Location_Type);
+        v => v.length, d => d.Location_Type);
+    if (schoolLevel !== "All")
+        locationRollup = d3.rollup(schoolShootingData.filter(s => s.Location_Type !== "" 
+            && s.Location_Type !== "null" 
+            && s.Location_Type !== "Unknown" 
+            && s.Location_Type !== "ND"), 
+            v => v.length, d => d.School_Level, d => d.Location_Type);
     var xScale = d3.scaleBand()
-    .domain([...locationRollup.get(schoolLevel).keys()].sort())
+    .domain([...(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup).keys()].sort())
     .range([0, 700]).padding([0.2]);
     var yScale = d3.scaleLinear()
-    .domain([0, d3.greatest(locationRollup.get(schoolLevel), d => d[1])[1]])
+    .domain([0, d3.greatest(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup, d => d[1])[1]])
     .range([300, 0]);
     
     // Creates bar chart and axes
@@ -478,7 +485,7 @@ function createBarChart() {
     d3.select("svg").append("g").attr("class", "barChart")
         .attr("transform", "translate(50,50)")
         .selectAll("rect")
-        .data(locationRollup.get(schoolLevel), function(d) { return d[0] })
+        .data(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup, function(d) { return d[0] })
         .enter().append("rect")
         .attr("x", function(d, i) { return xScale(d[0]); })
         .attr("y", function(d, i) { return yScale(d[1]); })
@@ -490,14 +497,26 @@ function createBarChart() {
     .on("change", function(e) {
         // Updates the location data by school level and scales
         schoolLevel = e.target.value;
-        xScale.domain([...locationRollup.get(schoolLevel).keys()].sort());
-        yScale.domain([0, d3.greatest(locationRollup.get(schoolLevel), d => d[1])[1]])
+        if (schoolLevel !== "All")
+            locationRollup = d3.rollup(schoolShootingData.filter(s => s.Location_Type !== "" 
+                && s.Location_Type !== "null" 
+                && s.Location_Type !== "Unknown" 
+                && s.Location_Type !== "ND"), 
+                v => v.length, d => d.School_Level, d => d.Location_Type);
+        else
+            locationRollup = d3.rollup(schoolShootingData.filter(s => s.Location_Type !== "" 
+                && s.Location_Type !== "null" 
+                && s.Location_Type !== "Unknown" 
+                && s.Location_Type !== "ND"), 
+                v => v.length, d => d.Location_Type);  
+        xScale.domain([...(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup).keys()].sort());
+        yScale.domain([0, d3.greatest(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup, d => d[1])[1]])
         d3.select(".barYAxis").transition().duration(1000).call(d3.axisLeft(yScale))
         d3.select(".barXAxis").transition().duration(1000).call(d3.axisBottom(xScale))
 
         // Updates bar chart
         var bars =  d3.select(".barChart").selectAll("rect")
-        .data(locationRollup.get(schoolLevel), function(d) { return d[0] })
+        .data(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup, function(d) { return d[0] })
 
         bars.enter().append("rect")
         .attr("x", function(d) { return xScale(d[0]); })
