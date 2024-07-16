@@ -26,13 +26,16 @@ body {
     margin: 15% auto;
 }
 
+#scene-conclusion {
+    margin: 7% auto;
+}
+
 #scene-line-chart, #scene-map, #scene-bar-chart {
     margin: 3% auto;
 }
 
-caption {
-    text-align: center;
-    width: 100%;
+label {
+    font-size: 1.2em;
 }
 
 strong {
@@ -48,7 +51,7 @@ strong {
     }
 }
 
-rect {
+.barChart > rect, .annotation-note-content > rect {
     fill: maroon;
     stroke: #ab4b4b;
 }
@@ -106,7 +109,7 @@ h2 {
 }
 
 :not(footer) > p {
-    font-size: 1.1em;
+    font-size: 1.4em;
 }
 
 p > b {
@@ -164,9 +167,9 @@ footer {
     left: 0px;
     right: 0px;
     margin-bottom: 0px;
-    font-size: 15px;
+    font-size: 17px;
     animation: footerMove 2s linear forwards;
-    text-align: left;
+    text-align: right;
 }
 
 @keyframes footerMove {
