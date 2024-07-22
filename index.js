@@ -466,11 +466,12 @@ function createBarChart() {
             && s.Location_Type !== "Unknown" 
             && s.Location_Type !== "ND"), 
             v => v.length, d => d.School_Level, d => d.Location_Type);
+    var locData = schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup;
     var xScale = d3.scaleBand()
-    .domain([...(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup).keys()].sort())
+    .domain([...locData.keys()].sort())
     .range([0, 700]).padding([0.2]);
     var yScale = d3.scaleLinear()
-    .domain([0, d3.greatest(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup, d => d[1])[1]])
+    .domain([0, d3.greatest(locData, d => d[1])[1]])
     .range([300, 0]);
     
     // Creates bar chart and axes
@@ -485,7 +486,7 @@ function createBarChart() {
     d3.select("svg").append("g").attr("class", "barChart")
         .attr("transform", "translate(50,50)")
         .selectAll("rect")
-        .data(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup, function(d) { return d[0] })
+        .data(locData, function(d) { return d[0] })
         .enter().append("rect")
         .attr("x", function(d, i) { return xScale(d[0]); })
         .attr("y", function(d, i) { return yScale(d[1]); })
@@ -508,15 +509,16 @@ function createBarChart() {
                 && s.Location_Type !== "null" 
                 && s.Location_Type !== "Unknown" 
                 && s.Location_Type !== "ND"), 
-                v => v.length, d => d.Location_Type);  
-        xScale.domain([...(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup).keys()].sort());
-        yScale.domain([0, d3.greatest(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup, d => d[1])[1]])
+                v => v.length, d => d.Location_Type);
+        locData = schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup;
+        xScale.domain([...locData.keys()].sort());
+        yScale.domain([0, d3.greatest(locData, d => d[1])[1]])
         d3.select(".barYAxis").transition().duration(1000).call(d3.axisLeft(yScale))
         d3.select(".barXAxis").transition().duration(1000).call(d3.axisBottom(xScale))
 
         // Updates bar chart
         var bars =  d3.select(".barChart").selectAll("rect")
-        .data(schoolLevel !== "All" ? locationRollup.get(schoolLevel) : locationRollup, function(d) { return d[0] })
+        .data(locData, function(d) { return d[0] })
 
         bars.enter().append("rect")
         .attr("x", function(d) { return xScale(d[0]); })
