@@ -2,8 +2,6 @@ var scenes = ["scene-home", "scene-line-chart", "scene-map", "scene-bar-chart", 
 
 var sceneIndex = 0;
 
-var sliderYear = 1970;
-
 var schoolLevel = "All";
 
 var quarter = "overall"
@@ -101,11 +99,8 @@ function getCurrentScene(prevIndex) {
             d3.select("#" + scenes[sceneIndex])
             .append("p")
             .text(`From coast to coast, we are recuperating from recent school shootings, leaving catastrophic impacts on all Americans.
-                From the map below, California, Texas, Florida and Illinois are 
-                some of states that consistently have the greatest number of school shootings 
-                possibly due to high crime rates. 
-                Toggle the slider below to see how the number of school shootings 
-                for each state changed over the years.`);
+                From the map below, every state in the US had at least one school shooting from 1970-2022. California, Texas, Florida and Illinois are 
+                some of the states that had the greatest number of school shootings.`);
             createMapChart();
             d3.select("#" + scenes[sceneIndex]).append("p").text("Click on the right arrow to see the school shootings per location per school level.");
             break;
@@ -160,8 +155,8 @@ function createMapChart() {
     // Sets up conversion from TopoJSON to GeoJSON of US map, color scheme, and projection
     var states = topojson.feature(us, us.objects.states);
     var borders = topojson.mesh(us, us.objects.states, (a, b) => a !== b);
-    var dataMap = d3.rollup(schoolShootingData, (v) => v.length, (d) => d.Date.getFullYear(), (d) => d.State);
-    var colorScheme = d3.scaleLinear().domain([0, d3.greatest(dataMap.get(sliderYear), d => d[1])[1]]).range(["white", "maroon"]);
+    var dataMap = d3.rollup(schoolShootingData, (v) => v.length, (d) => d.State);
+    var colorScheme = d3.scaleLinear().domain([0, d3.greatest(dataMap, d => d[1])[1]]).range(["white", "maroon"]);
     var projection = d3.geoIdentity().fitSize([750,350], states)
     var path = d3.geoPath().projection(projection);
 
@@ -172,7 +167,7 @@ function createMapChart() {
         .map(function (d, i) { return [d, abbrevs[i]]; });
 
     // Sets up legend axis
-    var xLeg = d3.scaleLinear().domain([0, d3.greatest(dataMap.get(sliderYear), d => d[1])[1]]).range([10,400]);
+    var xLeg = d3.scaleLinear().domain([0, d3.greatest(dataMap, d => d[1])[1]]).range([10,400]);
 
     // Create a tooltip element for each state when hovered over
     var tooltip = d3.select("#" + scenes[sceneIndex])
@@ -182,36 +177,6 @@ function createMapChart() {
         .style("border", "solid")
         .style("border-width", "1px")
         .style("border-radius", "5px");
-
-    // Create a slider to change the year of the shooting incidents
-    d3.select("#" + scenes[sceneIndex])
-    .append("label").attr("for", "map-year-slider")
-    .text(`US Choropleth Map of School Shootings in ${sliderYear} `);
-
-    d3.select("#" + scenes[sceneIndex])
-    .append("input")
-    .attr("type", "range")
-    .attr("id", "map-year-slider")
-    .attr("name", "map-year-slider")
-    .attr("min", 1970)
-    .attr("max", 2022)
-    .attr("step", 1)
-    .attr("value", sliderYear)
-    .on("input", function (e) {
-        sliderYear = parseInt(e.target.value);
-        colorScheme = d3.scaleLinear().domain([0, d3.greatest(dataMap.get(sliderYear), d => d[1])[1]]).range(["white", "maroon"]);
-        d3.selectAll("path.states")
-        .transition().duration(100)
-        .attr("fill", function(d) {
-            var stateANSI = ansiDict.filter(s => s[0] === parseInt(d.id))[0];
-            return colorScheme(dataMap.get(sliderYear).get(stateANSI[1]) || 0); 
-        });
-        d3.select("label")
-        .text("US Choropleth Map of School Shootings in " + sliderYear);
-        xLeg.domain([0, d3.greatest(dataMap.get(sliderYear), d => d[1])[1]]).range([10,400]);
-        d3.select(".choropleth-legend-axis").call(d3.axisBottom(xLeg).tickValues(colorScheme.domain()));
-        d3.select(".choropleth-legend-title").text("Color Coding for " + sliderYear + " Choropleth");
-    });
 
     // Create the US choropleth of the school shootings by the year that the slider landed on
     d3.select("#" + scenes[sceneIndex])
@@ -224,7 +189,7 @@ function createMapChart() {
     .attr("class", "states")
     .attr("fill", function(d) {
         var stateANSI = ansiDict.filter(s => s[0] === parseInt(d.id))[0];
-        return colorScheme(dataMap.get(sliderYear).get(stateANSI[1]) || 0); 
+        return colorScheme(dataMap.get(stateANSI[1]) || 0); 
     })
     .attr("d", path)
     .on("mouseover", function(event, d) {
@@ -233,7 +198,7 @@ function createMapChart() {
     .on("mousemove", function(event, d) {
         var stateANSI = ansiDict.filter(s => s[0] === parseInt(d.id))[0];
         tooltip
-        .html(stateANSI[1] + " had " + (dataMap.get(sliderYear).get(stateANSI[1]) || 0) + " school shootings.")
+        .html(stateANSI[1] + " had " + (dataMap.get(stateANSI[1]) || 0) + " school shootings.")
         .style("top", `${event.y - 50}px`)
         .style("left", `${event.x / 2 - 60}px`);
     }).on("mouseleave", function(event, d) {
@@ -273,7 +238,7 @@ function createMapChart() {
         .attr("y", 20)
         .attr("fill", "white")
         .style("text-anchor", "middle")
-        .text("Color Coding for " + sliderYear + " Choropleth")
+        .text("US Choropleth Color Coding")
     
     svgLegend.append("rect")
         .attr("x", 10)
