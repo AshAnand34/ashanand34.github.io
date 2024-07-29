@@ -30,7 +30,7 @@ body {
     margin: 7% auto;
 }
 
-#scene-line-chart, #scene-map, #scene-bar-chart {
+#scene-line-chart, #scene-map, #scene-bar-chart, #scene-top-5-states {
     margin: 3% auto;
 }
 
@@ -39,7 +39,7 @@ label {
 }
 
 strong {
-    font-size: xx-large;
+    font-size: x-large;
 }
 
 @keyframes content-appear {
@@ -51,9 +51,13 @@ strong {
     }
 }
 
-.barChart > rect, .annotation-note-content > rect {
+.barChart > rect, .top5States-barChart > rect, .annotation-note-content > rect {
     fill: maroon;
     stroke: #ab4b4b;
+}
+
+.top-5-state-annotation-group > .annotation-note-content > rect {
+    stroke: none;
 }
 
 select {
@@ -105,7 +109,7 @@ h2 {
 }
 
 #scene-home > p {
-    font-size: 2em;
+    font-size: 1.75em;
 }
 
 :not(footer) > p {
