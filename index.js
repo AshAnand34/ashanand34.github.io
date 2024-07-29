@@ -146,7 +146,7 @@ function getCurrentScene(prevIndex) {
             .append("svg")
             .attr("width", 800).attr("height", 400);
             createBarChart();
-            d3.select("#" + scenes[sceneIndex]).append("p").text("Click on the right arrow.");
+            d3.select("#" + scenes[sceneIndex]).append("p").text("Click on the right arrow for a call to action.");
             break;
         case 5:
             // Conclusion Scene
